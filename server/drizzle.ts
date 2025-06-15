@@ -135,6 +135,81 @@ export async function initializeDatabase() {
           is_read BOOLEAN DEFAULT FALSE,
           created_at TIMESTAMP DEFAULT NOW()
         );
+                
+        CREATE TABLE IF NOT EXISTS cart_items (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER NOT NULL,
+          food_id INTEGER NOT NULL,
+          quantity INTEGER NOT NULL,
+          created_at TIMESTAMP DEFAULT NOW()
+        );
+        
+        CREATE TABLE IF NOT EXISTS wallets (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER NOT NULL UNIQUE,
+          balance INTEGER NOT NULL DEFAULT 0,
+          currency TEXT NOT NULL DEFAULT 'NGN',
+          status TEXT NOT NULL DEFAULT 'active',
+          created_at TIMESTAMP DEFAULT NOW(),
+          updated_at TIMESTAMP DEFAULT NOW()
+        );
+        
+        CREATE TABLE IF NOT EXISTS wallet_transactions (
+          id SERIAL PRIMARY KEY,
+          wallet_id INTEGER NOT NULL,
+          type TEXT NOT NULL,
+          amount INTEGER NOT NULL,
+          balance_before INTEGER NOT NULL,
+          balance_after INTEGER NOT NULL,
+          reference TEXT NOT NULL UNIQUE,
+          description TEXT NOT NULL,
+          order_id INTEGER,
+          topup_id INTEGER,
+          status TEXT NOT NULL DEFAULT 'completed',
+          created_at TIMESTAMP DEFAULT NOW()
+        );
+        
+        CREATE TABLE IF NOT EXISTS wallet_topups (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER NOT NULL,
+          wallet_id INTEGER NOT NULL,
+          amount INTEGER NOT NULL,
+          payment_reference TEXT NOT NULL UNIQUE,
+          payment_gateway TEXT NOT NULL,
+          gateway_response TEXT,
+          status TEXT NOT NULL DEFAULT 'pending',
+          completed_at TIMESTAMP,
+          created_at TIMESTAMP DEFAULT NOW()
+        );
+        
+        CREATE TABLE IF NOT EXISTS support_tickets (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER NOT NULL,
+          order_id INTEGER,
+          type TEXT NOT NULL,
+          priority TEXT NOT NULL DEFAULT 'medium',
+          status TEXT NOT NULL DEFAULT 'open',
+          subject TEXT NOT NULL,
+          description TEXT NOT NULL,
+          category TEXT NOT NULL,
+          assigned_to_user_id INTEGER,
+          escalated_from_chat BOOLEAN DEFAULT FALSE,
+          chat_context TEXT,
+          resolution_notes TEXT,
+          created_at TIMESTAMP DEFAULT NOW(),
+          updated_at TIMESTAMP DEFAULT NOW(),
+          resolved_at TIMESTAMP
+        );
+        
+        CREATE TABLE IF NOT EXISTS support_ticket_messages (
+          id SERIAL PRIMARY KEY,
+          ticket_id INTEGER NOT NULL,
+          user_id INTEGER NOT NULL,
+          message TEXT NOT NULL,
+          is_from_staff BOOLEAN DEFAULT FALSE,
+          attachments TEXT,
+          created_at TIMESTAMP DEFAULT NOW()
+        );
       `);
       console.log("Database tables created successfully");
     } catch (error) {
