@@ -32,6 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
+  
   // Function to refresh the user data
   const refreshUser = async () => {
     try {

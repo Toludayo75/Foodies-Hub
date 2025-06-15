@@ -43,6 +43,9 @@ import MemoryStore from 'memorystore';
 // Create memory store for session
 const MemoryStoreSession = MemoryStore(session);
 
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1); // Tell Express to trust Render’s proxy
+}
 app.use(session({
   store: new MemoryStoreSession({
     checkPeriod: 86400000 // prune expired entries every 24h

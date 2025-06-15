@@ -246,21 +246,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get current user
-  app.get('/api/auth/me', requireAuth, async (req, res) => {
-    try {
-      const userId = req.session.userId as number;
-      const user = await storage.getUser(userId);
-      
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
+    app.get('/api/auth/me', requireAuth, async (req, res) => {
+      console.log("Session:", req.session); // 👈 add this for debugging
 
-      const { password, ...userWithoutPassword } = user;
-      res.json(userWithoutPassword);
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching user" });
-    }
-  });
+      try {
+        const userId = req.session.userId as number;
+        const user = await storage.getUser(userId);
+        
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        const { password, ...userWithoutPassword } = user;
+        res.json(userWithoutPassword);
+      } catch (error) {
+        res.status(500).json({ message: "Error fetching user" });
+      }
+    });
 
   // Categories Routes
   app.get('/api/categories', async (req, res) => {
