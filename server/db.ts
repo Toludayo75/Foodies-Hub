@@ -1,23 +1,12 @@
-import fs from "fs";
-import { Pool, neonConfig } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-serverless";
-import ws from "ws";
+import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres"; // use node-postgres version
 import * as schema from "@shared/schema";
 
-neonConfig.webSocketConstructor = ws;
+if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL must be set");
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL must be set. Did you forget to provision a database?");
-}
-
-// read the CA file
-const ca = fs.readFileSync("certs/ca.pem").toString();
-
-export const pool = new Pool({ 
+export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    ca, // use your downloaded CA certificate
-  }
+  ssl: { rejectUnauthorized: false } // bypass self-signed cert
 });
 
-export const db = drizzle({ client: pool, schema });
+export const db = drizzle(pool, { schema });
